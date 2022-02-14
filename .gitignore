@@ -107,4 +107,7 @@ venv.bak/
 __MACOSX/
 
 # dataset
-./datasets/
+datasets/
+
+# experiments ckpt
+runs/
