@@ -15,7 +15,7 @@ SOLVER:
 
 MODEL:
     MODEL_NAME: "DANet"
-    BACKBONE: "resnet101"
+    BACKBONE: "resnet50"
     OUTPUT_STRIDE: 8
     DANET:
         MULTI_GRID: True
