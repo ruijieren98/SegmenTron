@@ -68,6 +68,11 @@ pretrained backbone models will be download automatically in pytorch default dir
 └── datasets   # put datasets here 
 ```
 
+### Makf soft linkage
+```
+ln -s /work3/s210203/datasets/ .
+```
+
 ## Train
 ### Train with a single GPU
 ```

@@ -1,0 +1,236 @@
+Mon Feb 14 14:21:49 2022       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 495.46       Driver Version: 495.46       CUDA Version: 11.5     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  Tesla V100-PCIE...  On   | 00000000:58:00.0 Off |                    0 |
+| N/A   27C    P0    24W / 250W |      0MiB / 32510MiB |      0%   E. Process |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+|   1  Tesla V100-PCIE...  On   | 00000000:D8:00.0 Off |                    0 |
+| N/A   25C    P0    23W / 250W |      0MiB / 32510MiB |      0%   E. Process |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+=> danet start
+2022-02-14 14:21:59,285 Segmentron INFO: Using 2 GPUs
+2022-02-14 14:21:59,286 Segmentron INFO: Namespace(config_file='configs/cityscapes_danet_resnet.yaml', device='cuda', distributed=True, input_img='tools/demo_vis.png', local_rank=0, log_iter=10, no_cuda=False, num_gpus=2, opts=[], resume=None, skip_val=False, val_epoch=1)
+2022-02-14 14:21:59,286 Segmentron INFO: {
+        "SEED": 1024,
+        "TIME_STAMP": "2022-02-14-14-21",
+        "ROOT_PATH": "/zhome/f9/4/160189/SegmenTron",
+        "PHASE": "train",
+        "DATASET": {
+                "NAME": "cityscape",
+                "MEAN": [
+                        0.485,
+                        0.456,
+                        0.406
+                ],
+                "STD": [
+                        0.229,
+                        0.224,
+                        0.225
+                ],
+                "IGNORE_INDEX": -1,
+                "WORKERS": 4,
+                "MODE": "testval"
+        },
+        "AUG": {
+                "MIRROR": true,
+                "BLUR_PROB": 0.0,
+                "BLUR_RADIUS": 0.0,
+                "COLOR_JITTER": null
+        },
+        "TRAIN": {
+                "EPOCHS": 240,
+                "BATCH_SIZE": 2,
+                "CROP_SIZE": 768,
+                "BASE_SIZE": 1024,
+                "MODEL_SAVE_DIR": "runs/checkpoints/",
+                "LOG_SAVE_DIR": "runs/logs/",
+                "PRETRAINED_MODEL_PATH": "",
+                "BACKBONE_PRETRAINED": true,
+                "BACKBONE_PRETRAINED_PATH": "",
+                "RESUME_MODEL_PATH": "",
+                "SYNC_BATCH_NORM": true,
+                "SNAPSHOT_EPOCH": 10
+        },
+        "SOLVER": {
+                "LR": 0.003,
+                "OPTIMIZER": "sgd",
+                "EPSILON": 1e-08,
+                "MOMENTUM": 0.9,
+                "WEIGHT_DECAY": 0.0001,
+                "DECODER_LR_FACTOR": 10.0,
+                "LR_SCHEDULER": "poly",
+                "POLY": {
+                        "POWER": 0.9
+                },
+                "STEP": {
+                        "GAMMA": 0.1,
+                        "DECAY_EPOCH": [
+                                10,
+                                20
+                        ]
+                },
+                "WARMUP": {
+                        "EPOCHS": 0.0,
+                        "FACTOR": 0.3333333333333333,
+                        "METHOD": "linear"
+                },
+                "OHEM": false,
+                "AUX": false,
+                "AUX_WEIGHT": 0.4,
+                "LOSS_NAME": ""
+        },
+        "TEST": {
+                "TEST_MODEL_PATH": "",
+                "BATCH_SIZE": 1,
+                "CROP_SIZE": null,
+                "SCALES": [
+                        1.0
+                ],
+                "FLIP": false
+        },
+        "VISUAL": {
+                "OUTPUT_DIR": "../runs/visual/"
+        },
+        "MODEL": {
+                "MODEL_NAME": "DANet",
+                "BACKBONE": "resnet50",
+                "BACKBONE_SCALE": 1.0,
+                "MULTI_LOSS_WEIGHT": [
+                        1.0
+                ],
+                "DEFAULT_GROUP_NUMBER": 32,
+                "DEFAULT_EPSILON": 1e-05,
+                "BN_TYPE": "BN",
+                "BN_EPS_FOR_ENCODER": null,
+                "BN_EPS_FOR_DECODER": null,
+                "OUTPUT_STRIDE": 8,
+                "BN_MOMENTUM": null,
+                "DANET": {
+                        "MULTI_DILATION": [
+                                4,
+                                8,
+                                16
+                        ],
+                        "MULTI_GRID": true
+                },
+                "CCNET": {
+                        "RECURRENCE": 2
+                }
+        }
+}
+2022-02-14 14:22:00,214 Segmentron INFO: Found 2975 images in the folder /zhome/f9/4/160189/SegmenTron/datasets/cityscapes/leftImg8bit/train
+2022-02-14 14:22:00,348 Segmentron INFO: Found 500 images in the folder /zhome/f9/4/160189/SegmenTron/datasets/cityscapes/leftImg8bit/val
+2022-02-14 14:22:00,684 Segmentron INFO: load backbone pretrained model from url..
+2022-02-14 14:22:01,066 Segmentron INFO: <All keys matched successfully>
+2022-02-14 14:22:03,039 Segmentron INFO: DANet flops: 1584.404G input shape is [3, 1024, 2048], params: 47.463M
+2022-02-14 14:22:03,047 Segmentron INFO: SyncBatchNorm is effective!
+2022-02-14 14:22:03,073 Segmentron INFO: Start training, Total Epochs: 240 = Total Iterations 178320
+2022-02-14 14:22:16,467 Segmentron INFO: Epoch: 1/240 || Iters: 10/743 || Lr: 0.003000 || Loss: 5.9312 || Cost Time: 0:00:13 || Estimated Time: 2 days, 18:19:19
+2022-02-14 14:22:21,501 Segmentron INFO: Epoch: 1/240 || Iters: 20/743 || Lr: 0.003000 || Loss: 5.9805 || Cost Time: 0:00:18 || Estimated Time: 1 day, 21:37:55
+2022-02-14 14:22:26,540 Segmentron INFO: Epoch: 1/240 || Iters: 30/743 || Lr: 0.003000 || Loss: 3.9855 || Cost Time: 0:00:23 || Estimated Time: 1 day, 14:44:19
+2022-02-14 14:22:31,572 Segmentron INFO: Epoch: 1/240 || Iters: 40/743 || Lr: 0.002999 || Loss: 3.2579 || Cost Time: 0:00:28 || Estimated Time: 1 day, 11:16:56
+2022-02-14 14:22:36,608 Segmentron INFO: Epoch: 1/240 || Iters: 50/743 || Lr: 0.002999 || Loss: 5.6225 || Cost Time: 0:00:33 || Estimated Time: 1 day, 9:12:42
+2022-02-14 14:22:41,655 Segmentron INFO: Epoch: 1/240 || Iters: 60/743 || Lr: 0.002999 || Loss: 4.8236 || Cost Time: 0:00:38 || Estimated Time: 1 day, 7:50:24
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 12650038: <danet> in cluster <dcc> Exited
+
+Job <danet> was submitted from host <n-62-20-1> by user <s210203> in cluster <dcc> at Mon Feb 14 14:21:48 2022
+Job was executed on host(s) <24*n-62-20-13>, in queue <gpuv100>, as user <s210203> in cluster <dcc> at Mon Feb 14 14:21:49 2022
+</zhome/f9/4/160189> was used as the home directory.
+</zhome/f9/4/160189/SegmenTron/submit_jobs> was used as the working directory.
+Started at Mon Feb 14 14:21:49 2022
+Terminated at Mon Feb 14 14:22:47 2022
+Results reported at Mon Feb 14 14:22:47 2022
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+### General options
+### –- specify queue -- (gpuv100/gpua100) --
+#BSUB -q gpuv100
+### -- set the job Name --
+JOB="danet"
+#BSUB -J "danet" 
+### -- ask for number of cores (default: 1) --
+#BSUB -n 24
+#BSUB -R "span[ptile=24]" 
+### -- Select the resources: 3 gpu in exclusive process mode --
+#BSUB -gpu "num=2:mode=exclusive_process"
+### -- set walltime limit: hh:mm --  maximum 24 hours for GPU-queues right now
+#BSUB -W 24:00
+# request 5GB of system-memory
+#BSUB -R "rusage[mem=10GB]"
+### -- set the email address --
+# please uncomment the following line and put in your e-mail address,
+# if you want to receive e-mail notifications on a non-default address
+##BSUB -u s210203@student.dtu.dk
+### -- send notification at start --
+##BSUB -B
+### -- send notification at completion--
+##BSUB -N
+### -- Specify the output and error file. %J is the job-id --
+### -- -o and -e mean append, -oo and -eo mean overwrite --
+#BSUB -o gpu_%J.out
+#BSUB -e gpu_%J.err
+# -- end of LSF options --
+
+nvidia-smi
+# Load the cuda module
+## module load cuda/11.5
+module load python3/3.6.2
+###python3 -m venv torch2
+###source torch2/bin/activate
+###python -m pip install pyhocon
+
+echo "=> $JOB start"
+
+cd /zhome/f9/4/160189/IGR/data 
+source torch/bin/activate
+cd /zhome/f9/4/160189/SegmenTron/
+bash train_danet_mul_gpus.sh
+
+------------------------------------------------------------
+
+TERM_OWNER: job killed by owner.
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   145.40 sec.
+    Max Memory :                                 7172 MB
+    Average Memory :                             7026.33 MB
+    Total Requested Memory :                     245760.00 MB
+    Delta Memory :                               238588.00 MB
+    Max Swap :                                   -
+    Max Processes :                              16
+    Max Threads :                                65
+    Run time :                                   58 sec.
+    Turnaround time :                            59 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <gpu_12650038.err> for stderr output of this job.
+
