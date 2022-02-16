@@ -160,7 +160,7 @@ class Trainer(object):
 
             if iteration % self.iters_per_epoch == 0 and self.save_to_disk:
                 save_checkpoint(self.model, epoch, self.optimizer, self.lr_scheduler, is_best=False)
-
+            
             if not self.args.skip_val and iteration % val_per_iters == 0:
                 self.validation(epoch)
                 self.model.train()
@@ -170,7 +170,7 @@ class Trainer(object):
         logging.info(
             "Total training time: {} ({:.4f}s / it)".format(
                 total_training_str, total_training_time / max_iters))
-
+    
     def validation(self, epoch):
         self.metric.reset()
         if self.args.distributed:
@@ -178,11 +178,14 @@ class Trainer(object):
         else:
             model = self.model
         torch.cuda.empty_cache()
+        #import gc
+        #del variables
+        #gc.collect()
+        torch.cuda.memory_summary()
         model.eval()
         for i, (image, target, filename) in enumerate(self.val_loader):
             image = image.to(self.device)
             target = target.to(self.device)
-
             with torch.no_grad():
                 if cfg.DATASET.MODE == 'val' or cfg.TEST.CROP_SIZE is None:
                     output = model(image)[0]
