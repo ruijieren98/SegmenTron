@@ -38,6 +38,7 @@ def save_checkpoint(model, epoch, optimizer=None, lr_scheduler=None, is_best=Fal
         try:
             if os.path.exists(pre_filename):
                 os.remove(pre_filename)
+                #None
         except OSError as e:
             logging.info(e)
 

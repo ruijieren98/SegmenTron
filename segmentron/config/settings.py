@@ -44,9 +44,9 @@ cfg.TRAIN.CROP_SIZE = 769
 # train base size
 cfg.TRAIN.BASE_SIZE = 1024
 # model output dir
-cfg.TRAIN.MODEL_SAVE_DIR = 'runs/checkpoints/'
+cfg.TRAIN.MODEL_SAVE_DIR = '/work3/s210203/runs/checkpoints/'
 # log dir
-cfg.TRAIN.LOG_SAVE_DIR = 'runs/logs/'
+cfg.TRAIN.LOG_SAVE_DIR = '/work3/s210203/runs/logs/'
 # pretrained model for eval or finetune
 cfg.TRAIN.PRETRAINED_MODEL_PATH = ''
 # use pretrained backbone model over imagenet
@@ -109,7 +109,7 @@ cfg.TEST.FLIP = False
 
 ########################## visual config ###########################################
 # visual result output dir
-cfg.VISUAL.OUTPUT_DIR = '../runs/visual/'
+cfg.VISUAL.OUTPUT_DIR = '/work3/s210203/runs/visual/'
 
 ########################## model #######################################
 # model name
