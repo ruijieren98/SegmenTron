@@ -48,9 +48,9 @@ class DenseSegmentation(SegmentationDataset):
             raise RuntimeError("Found 0 images in subfolders of:" + root + "\n")
         self.valid_classes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
                               10, 11, 12, 13, 14, 15, 16, 17, 18]
-        self._key = np.array([-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18])
+        self._key = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, -1])
 
-        self._mapping = np.array([255, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]).astype('int32')
+        self._mapping = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 255]).astype('int32')
 
     def _class_to_index(self, mask):
         # assert the value
@@ -110,7 +110,7 @@ def _get_city_pairs(folder, split='train'):
                 if filename.endswith('.png'):
                     imgpath = os.path.join(root, filename)
                     foldername = os.path.basename(os.path.dirname(imgpath))
-                    maskname = filename.replace('leftImg8bit', 'gtFine_labelIds')
+                    maskname = filename.replace('_.png', '_labelTrainIds.png')
                     maskpath = os.path.join(mask_folder, foldername, maskname)
                     if os.path.isfile(imgpath) and os.path.isfile(maskpath):
                         img_paths.append(imgpath)
