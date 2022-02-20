@@ -7,7 +7,7 @@ TRAIN:
     BATCH_SIZE: 6 
     CROP_SIZE: 768
 TEST:
-    BATCH_SIZE: 4 
+    BATCH_SIZE: 1 
 #    TEST_MODEL_PATH: trained_models/danet101_segmentron.pth
 
 SOLVER:

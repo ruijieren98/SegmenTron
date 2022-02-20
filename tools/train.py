@@ -3,6 +3,7 @@ import copy
 import datetime
 import os
 import sys
+import numpy as np
 
 cur_path = os.path.abspath(os.path.dirname(__file__))
 root_path = os.path.split(cur_path)[0]
@@ -131,6 +132,20 @@ class Trainer(object):
 
             images = images.to(self.device)
             targets = targets.to(self.device)
+            
+            r = np.random.rand(1)
+            cutmix_prob = 0.8 
+            beta = 1.0
+            if  r < cutmix_prob:
+                # generate mixed sample
+                rand_index = torch.randperm(images.size()[0]).cuda()
+                
+                lam = np.random.beta(beta, beta)
+                
+                bbx1, bby1, bbx2, bby2 = self.rand_bbox(images.size(), lam)
+               
+                images[:, :, bbx1:bbx2, bby1:bby2] = images[rand_index, :, bbx1:bbx2, bby1:bby2]
+                targets[:, bbx1:bbx2, bby1:bby2] = targets[rand_index, bbx1:bbx2, bby1:bby2]
 
             outputs = self.model(images)
             loss_dict = self.criterion(outputs, targets)
@@ -207,7 +222,24 @@ class Trainer(object):
             self.best_pred = mIoU
             logging.info('Epoch {} is the best model, best pixAcc: {:.3f}, mIoU: {:.3f}, save the model..'.format(epoch, pixAcc * 100, mIoU * 100))
             save_checkpoint(model, epoch, is_best=True)
+     
+    def rand_bbox(self, size, lam):
+        W = size[2]
+        H = size[3]
+        cut_rat = np.sqrt(1. - lam)
+        cut_w = np.int(W * cut_rat)
+        cut_h = np.int(H * cut_rat)
 
+        # uniform
+        cx = np.random.randint(W)
+        cy = np.random.randint(H)
+
+        bbx1 = np.clip(cx - cut_w // 2, 0, W)
+        bby1 = np.clip(cy - cut_h // 2, 0, H)
+        bbx2 = np.clip(cx + cut_w // 2, 0, W)
+        bby2 = np.clip(cy + cut_h // 2, 0, H)
+
+        return bbx1, bby1, bbx2, bby2
 
 if __name__ == '__main__':
     args = parse_args()
