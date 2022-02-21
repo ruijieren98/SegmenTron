@@ -23,6 +23,9 @@ def demo():
     cfg.check_and_freeze()
     default_setup(args)
 
+    cfg.TEST.TEST_MODEL_PATH = '/work3/s210203/runs/checkpoints/DANet_resnet50_cityscape_2022-02-17-14-16/best_model.pth'
+    args.input_img = './datasets/densepass/leftImg8bit/val/cs/'
+
     # output folder
     output_dir = os.path.join(cfg.VISUAL.OUTPUT_DIR, 'vis_result_{}_{}_{}_{}'.format(
         cfg.MODEL.MODEL_NAME, cfg.MODEL.BACKBONE, cfg.DATASET.NAME, cfg.TIME_STAMP))
@@ -42,6 +45,10 @@ def demo():
         img_paths = [os.path.join(args.input_img, x) for x in os.listdir(args.input_img)]
     else:
         img_paths = [args.input_img]
+    print("imgs: ", img_paths)
+    print("cfg: ", cfg.TEST.TEST_MODEL_PATH)
+    
+    
     for img_path in img_paths:
         image = Image.open(img_path).convert('RGB')
         images = transform(image).unsqueeze(0).to(args.device)
