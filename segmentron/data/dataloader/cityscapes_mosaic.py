@@ -90,8 +90,12 @@ class CityMosicSegmentation(SegmentationDataset):
             assert self.mode == 'testval'
             img, mask = self._img_transform(img), self._mask_transform(mask)
         # general resize, normalize and toTensor
-        if (self.transform is not None) and (mosaic_p < p):
-            img = self.transform(img)
+        if (self.transform is not None):
+            if self.mode == 'train':
+                if (mosaic_p < p):
+                    img = self.transform(img)
+            else:
+                img = self.transform(img)
         
         # plt.imshow(  img.permute(1, 2, 0)  )
         # plt.savefig("./test_mosaic/mosaic_img/img_{}.png".format(index))

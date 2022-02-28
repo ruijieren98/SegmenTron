@@ -7,11 +7,12 @@ JOB="danet_mosaic"
 #BSUB -J "danet_mosaic" 
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 12 
-#BSUB -R "span[hosts=1]" 
+#####BSUB -R "span[hosts=1]" 
+#BSUB -R "span[ptile=12]" 
 ### -- Select the resources: 3 gpu in exclusive process mode --
-#BSUB -gpu "num=2:mode=exclusive_process"
+#BSUB -gpu "num=3:mode=exclusive_process"
 ### -- specify gpu memory
-#BSUB -R "select[gpu32gb]"
+###BSUB -R "select[gpu32gb]"
 ### -- set walltime limit: hh:mm --  maximum 24 hours for GPU-queues right now
 #BSUB -W 24:00
 # request 5GB of system-memory
