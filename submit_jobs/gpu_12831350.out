@@ -1,0 +1,155 @@
+Mon Feb 28 17:09:54 2022       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 510.54       Driver Version: 510.54       CUDA Version: 11.6     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  Tesla V100-PCIE...  On   | 00000000:58:00.0 Off |                    0 |
+| N/A   32C    P0    28W / 250W |      0MiB / 32768MiB |      0%   E. Process |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+|   1  Tesla V100-PCIE...  On   | 00000000:D8:00.0 Off |                    0 |
+| N/A   29C    P0    25W / 250W |      0MiB / 32768MiB |      0%   E. Process |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+=> danet_mosaic start
+2022-02-28 17:10:11,311 Segmentron INFO: Using 2 GPUs
+2022-02-28 17:10:11,311 Segmentron INFO: Namespace(config_file='configs/cityscapes_danet_resnet_mosaic.yaml', device='cuda', distributed=True, input_img='tools/demo_vis.png', local_rank=0, log_iter=10, no_cuda=False, num_gpus=2, opts=[], resume=None, skip_val=False, val_epoch=1)
+2022-02-28 17:10:11,312 Segmentron INFO: {
+        "SEED": 1024,
+        "TIME_STAMP": "2022-02-28-17-09",
+        "ROOT_PATH": "/zhome/f9/4/160189/SegmenTron",
+        "PHASE": "train",
+        "DATASET": {
+                "NAME": "cityscape_mosaic",
+                "MEAN": [
+                        0.485,
+                        0.456,
+                        0.406
+                ],
+                "STD": [
+                        0.229,
+                        0.224,
+                        0.225
+                ],
+                "IGNORE_INDEX": -1,
+                "WORKERS": 4,
+                "MODE": "testval"
+        },
+        "AUG": {
+                "MIRROR": true,
+                "BLUR_PROB": 0.0,
+                "BLUR_RADIUS": 0.0,
+                "COLOR_JITTER": null
+        },
+        "TRAIN": {
+                "EPOCHS": 240,
+                "BATCH_SIZE": 6,
+                "CROP_SIZE": 768,
+                "BASE_SIZE": 1024,
+                "MODEL_SAVE_DIR": "/work3/s210203/runs/mosaic/checkpoints/",
+                "LOG_SAVE_DIR": "/work3/s210203/runs/mosaic/logs/",
+                "PRETRAINED_MODEL_PATH": "",
+                "BACKBONE_PRETRAINED": true,
+                "BACKBONE_PRETRAINED_PATH": "",
+                "RESUME_MODEL_PATH": "",
+                "SYNC_BATCH_NORM": true,
+                "SNAPSHOT_EPOCH": 10
+        },
+        "SOLVER": {
+                "LR": 0.003,
+                "OPTIMIZER": "sgd",
+                "EPSILON": 1e-08,
+                "MOMENTUM": 0.9,
+                "WEIGHT_DECAY": 0.0001,
+                "DECODER_LR_FACTOR": 10.0,
+                "LR_SCHEDULER": "poly",
+                "POLY": {
+                        "POWER": 0.9
+                },
+                "STEP": {
+                        "GAMMA": 0.1,
+                        "DECAY_EPOCH": [
+                                10,
+                                20
+                        ]
+                },
+                "WARMUP": {
+                        "EPOCHS": 0.0,
+                        "FACTOR": 0.3333333333333333,
+                        "METHOD": "linear"
+                },
+                "OHEM": false,
+                "AUX": false,
+                "AUX_WEIGHT": 0.4,
+                "LOSS_NAME": ""
+        },
+        "TEST": {
+                "TEST_MODEL_PATH": "",
+                "BATCH_SIZE": 1,
+                "CROP_SIZE": null,
+                "SCALES": [
+                        1.0
+                ],
+                "FLIP": false
+        },
+        "VISUAL": {
+                "OUTPUT_DIR": "/work3/s210203/runs/visual/"
+        },
+        "MODEL": {
+                "MODEL_NAME": "DANet",
+                "BACKBONE": "resnet50",
+                "BACKBONE_SCALE": 1.0,
+                "MULTI_LOSS_WEIGHT": [
+                        1.0
+                ],
+                "DEFAULT_GROUP_NUMBER": 32,
+                "DEFAULT_EPSILON": 1e-05,
+                "BN_TYPE": "BN",
+                "BN_EPS_FOR_ENCODER": null,
+                "BN_EPS_FOR_DECODER": null,
+                "OUTPUT_STRIDE": 8,
+                "BN_MOMENTUM": null,
+                "DANET": {
+                        "MULTI_DILATION": [
+                                4,
+                                8,
+                                16
+                        ],
+                        "MULTI_GRID": true
+                },
+                "CCNET": {
+                        "RECURRENCE": 2
+                }
+        }
+}
+2022-02-28 17:10:12,235 Segmentron INFO: Found 2975 images in the folder /zhome/f9/4/160189/SegmenTron/datasets/cityscapes/leftImg8bit/train
+2022-02-28 17:10:12,352 Segmentron INFO: Found 500 images in the folder /zhome/f9/4/160189/SegmenTron/datasets/cityscapes/leftImg8bit/val
+2022-02-28 17:10:12,774 Segmentron INFO: load backbone pretrained model from url..
+2022-02-28 17:10:13,457 Segmentron INFO: <All keys matched successfully>
+2022-02-28 17:10:15,414 Segmentron INFO: DANet flops: 1584.404G input shape is [3, 1024, 2048], params: 47.463M
+2022-02-28 17:10:15,423 Segmentron INFO: SyncBatchNorm is effective!
+2022-02-28 17:10:15,455 Segmentron INFO: Start training, Total Epochs: 240 = Total Iterations 59280
+2022-02-28 17:10:42,469 Segmentron INFO: Epoch: 1/240 || Iters: 10/247 || Lr: 0.003000 || Loss: 2.1651 || Cost Time: 0:00:27 || Estimated Time: 1 day, 20:28:30
+2022-02-28 17:10:56,611 Segmentron INFO: Epoch: 1/240 || Iters: 20/247 || Lr: 0.002999 || Loss: 3.2318 || Cost Time: 0:00:41 || Estimated Time: 1 day, 9:52:22
+2022-02-28 17:11:10,760 Segmentron INFO: Epoch: 1/240 || Iters: 30/247 || Lr: 0.002999 || Loss: 3.1327 || Cost Time: 0:00:55 || Estimated Time: 1 day, 6:20:25
+2022-02-28 17:11:24,933 Segmentron INFO: Epoch: 1/240 || Iters: 40/247 || Lr: 0.002998 || Loss: 2.8177 || Cost Time: 0:01:09 || Estimated Time: 1 day, 4:34:55
+2022-02-28 17:11:39,106 Segmentron INFO: Epoch: 1/240 || Iters: 50/247 || Lr: 0.002998 || Loss: 1.4427 || Cost Time: 0:01:23 || Estimated Time: 1 day, 3:31:33
+2022-02-28 17:11:53,345 Segmentron INFO: Epoch: 1/240 || Iters: 60/247 || Lr: 0.002997 || Loss: 1.2970 || Cost Time: 0:01:37 || Estimated Time: 1 day, 2:50:16
+2022-02-28 17:12:07,581 Segmentron INFO: Epoch: 1/240 || Iters: 70/247 || Lr: 0.002997 || Loss: 1.7236 || Cost Time: 0:01:52 || Estimated Time: 1 day, 2:20:42
+2022-02-28 17:12:21,823 Segmentron INFO: Epoch: 1/240 || Iters: 80/247 || Lr: 0.002996 || Loss: 1.2922 || Cost Time: 0:02:06 || Estimated Time: 1 day, 1:58:32
+2022-02-28 17:12:36,087 Segmentron INFO: Epoch: 1/240 || Iters: 90/247 || Lr: 0.002996 || Loss: 1.4309 || Cost Time: 0:02:20 || Estimated Time: 1 day, 1:41:28
+2022-02-28 17:12:50,342 Segmentron INFO: Epoch: 1/240 || Iters: 100/247 || Lr: 0.002995 || Loss: 1.5827 || Cost Time: 0:02:34 || Estimated Time: 1 day, 1:27:42
+2022-02-28 17:13:04,607 Segmentron INFO: Epoch: 1/240 || Iters: 110/247 || Lr: 0.002995 || Loss: 1.3074 || Cost Time: 0:02:49 || Estimated Time: 1 day, 1:16:28
+2022-02-28 17:13:18,888 Segmentron INFO: Epoch: 1/240 || Iters: 120/247 || Lr: 0.002995 || Loss: 1.4105 || Cost Time: 0:03:03 || Estimated Time: 1 day, 1:07:12
+2022-02-28 17:13:33,208 Segmentron INFO: Epoch: 1/240 || Iters: 130/247 || Lr: 0.002994 || Loss: 1.4173 || Cost Time: 0:03:17 || Estimated Time: 1 day, 0:59:37

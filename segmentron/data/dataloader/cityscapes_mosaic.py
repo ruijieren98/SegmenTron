@@ -6,6 +6,8 @@ import logging
 
 from PIL import Image
 from .seg_data_base import SegmentationDataset
+import random
+from matplotlib import pyplot as plt
 
 
 class CityMosicSegmentation(SegmentationDataset):
@@ -71,17 +73,34 @@ class CityMosicSegmentation(SegmentationDataset):
                 img = self.transform(img)
             return img, os.path.basename(self.images[index])
         mask = Image.open(self.mask_paths[index])
+        
+        mosaic_p = 0.8
+        p = random.random()
+        
         # synchrosized transform
         if self.mode == 'train':
-            img, mask = self._sync_transform(img, mask)
+            if mosaic_p >= p:
+                img, mask = self._load_mosaic(index)
+            else:
+                img, mask = self._sync_transform(img, mask)
+            
         elif self.mode == 'val':
             img, mask = self._val_sync_transform(img, mask)
         else:
             assert self.mode == 'testval'
             img, mask = self._img_transform(img), self._mask_transform(mask)
         # general resize, normalize and toTensor
-        if self.transform is not None:
+        if (self.transform is not None) and (mosaic_p < p):
             img = self.transform(img)
+        
+        # plt.imshow(  img.permute(1, 2, 0)  )
+        # plt.savefig("./test_mosaic/mosaic_img/img_{}.png".format(index))
+
+        # plt.imshow(  mask  )
+        # plt.savefig("./test_mosaic/mosaic_img/mask_{}.png".format(index))
+        # print("img saved")
+
+        
         return img, mask, os.path.basename(self.images[index])
 
     def _mask_transform(self, mask):
@@ -101,6 +120,57 @@ class CityMosicSegmentation(SegmentationDataset):
         return ('road', 'sidewalk', 'building', 'wall', 'fence', 'pole', 'traffic light',
                 'traffic sign', 'vegetation', 'terrain', 'sky', 'person', 'rider', 'car',
                 'truck', 'bus', 'train', 'motorcycle', 'bicycle')
+
+    def _load_mosaic(self, index):
+        """loads images in a mosaic
+        Refer: https://github.com/ultralytics/yolov5/blob/master/utils/datasets.py
+        """
+
+        num_samples = len(self.images)
+
+        random_padding = True
+        img_size = 384
+        mosaic_border = [-img_size // 2, -img_size // 2]
+
+        if random_padding:
+            yc, xc = [int(random.uniform(-x, 2 * img_size + x)) for x in mosaic_border]  # mosaic center
+        else:
+            yc, xc = [img_size, img_size]  # mosaic center
+
+        indices = [index] + [random.randint(0, num_samples - 1) for _ in range(3)]  # 3 additional image indices
+        for i, index in enumerate(indices):
+            img = Image.open(self.images[index]).convert('RGB')
+            mask = Image.open(self.mask_paths[index])
+            img, mask = self._sync_transform(img, mask)
+            img = self.transform(img)
+            
+            c, h, w = img.size()  # (3, 768, 768), torch tensor
+
+            # place img in img4
+            if i == 0:  # top left
+                img_s4 = img
+                mask_s4 = mask
+                
+                x1a, y1a, x2a, y2a = max(xc - w, 0), max(yc - h, 0), xc, yc  # xmin, ymin, xmax, ymax (large image)
+                x1b, y1b, x2b, y2b = w - (x2a - x1a), h - (y2a - y1a), w, h  # xmin, ymin, xmax, ymax (small image)
+            elif i == 1:  # top right
+                x1a, y1a, x2a, y2a = xc, max(yc - h, 0), min(xc + w, img_size * 2), yc
+                x1b, y1b, x2b, y2b = 0, h - (y2a - y1a), min(w, x2a - x1a), h
+            elif i == 2:  # bottom left
+                x1a, y1a, x2a, y2a = max(xc - w, 0), yc, xc, min(img_size * 2, yc + h)
+                x1b, y1b, x2b, y2b = w - (x2a - x1a), 0, max(xc, w), min(y2a - y1a, h)
+            elif i == 3:  # bottom right
+                x1a, y1a, x2a, y2a = xc, yc, min(xc + w, img_size * 2), min(img_size * 2, yc + h)
+                x1b, y1b, x2b, y2b = 0, 0, min(w, x2a - x1a), min(y2a - y1a, h)
+
+            img_s4[:, y1a:y2a, x1a:x2a] = img[:, y1b:y2b, x1b:x2b]  # img_s4[ymin:ymax, xmin:xmax]
+            mask_s4[y1a:y2a, x1a:x2a] = mask[y1b:y2b, x1b:x2b]
+
+            
+
+        
+        
+        return img_s4, mask_s4
 
 
 def _get_city_pairs(folder, split='train'):

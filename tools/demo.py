@@ -23,7 +23,8 @@ def demo():
     cfg.check_and_freeze()
     default_setup(args)
 
-    cfg.TEST.TEST_MODEL_PATH = '/work3/s210203/runs/checkpoints/DANet_resnet50_cityscape_2022-02-17-14-16/best_model.pth'
+    cfg.TEST.TEST_MODEL_PATH = './runs/checkpoints/DANet_resnet50_cityscape_2022-02-16-14-35/best_model.pth' 
+    #'/work3/s210203/runs/checkpoints/DANet_resnet50_cityscape_2022-02-17-14-16/best_model.pth'
     args.input_img = './datasets/densepass/leftImg8bit/val/cs/'
 
     # output folder

@@ -133,20 +133,20 @@ class Trainer(object):
             images = images.to(self.device)
             targets = targets.to(self.device)
             
-            # cutmix augumentation
-            r = np.random.rand(1)
-            cutmix_prob = 0.8 
-            beta = 1.0
-            if  r < cutmix_prob:
-                # generate mixed sample
-                rand_index = torch.randperm(images.size()[0]).cuda()
+            # # cutmix augumentation
+            # r = np.random.rand(1)
+            # cutmix_prob = 0.8 
+            # beta = 1.0
+            # if  r < cutmix_prob:
+            #     # generate mixed sample
+            #     rand_index = torch.randperm(images.size()[0]).cuda()
                 
-                lam = np.random.beta(beta, beta)
+            #     lam = np.random.beta(beta, beta)
                 
-                bbx1, bby1, bbx2, bby2 = self.rand_bbox(images.size(), lam)
+            #     bbx1, bby1, bbx2, bby2 = self.rand_bbox(images.size(), lam)
                
-                images[:, :, bbx1:bbx2, bby1:bby2] = images[rand_index, :, bbx1:bbx2, bby1:bby2]
-                targets[:, bbx1:bbx2, bby1:bby2] = targets[rand_index, bbx1:bbx2, bby1:bby2]
+            #     images[:, :, bbx1:bbx2, bby1:bby2] = images[rand_index, :, bbx1:bbx2, bby1:bby2]
+            #     targets[:, bbx1:bbx2, bby1:bby2] = targets[rand_index, bbx1:bbx2, bby1:bby2]
 
             outputs = self.model(images)
             loss_dict = self.criterion(outputs, targets)

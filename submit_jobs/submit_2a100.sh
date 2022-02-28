@@ -3,8 +3,8 @@
 ### –- specify queue -- (gpuv100/gpua100) --
 #BSUB -q gpua100 
 ### -- set the job Name --
-JOB="danet"
-#BSUB -J "danet" 
+JOB="danet_mosaic"
+#BSUB -J "danet_mosaic" 
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 12
 #BSUB -R "span[hosts=1]" 
@@ -26,8 +26,8 @@ JOB="danet"
 #BSUB -N
 ### -- Specify the output and error file. %J is the job-id --
 ### -- -o and -e mean append, -oo and -eo mean overwrite --
-#BSUB -o gpu_%J.out
-#BSUB -e gpu_%J.err
+#BSUB -o mosaic_a100_%J.out
+#BSUB -e mosaic_a100_%J.err
 # -- end of LSF options --
 
 nvidia-smi

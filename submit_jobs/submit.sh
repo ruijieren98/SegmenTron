@@ -3,11 +3,11 @@
 ### –- specify queue -- (gpuv100/gpua100) --
 #BSUB -q gpuv100
 ### -- set the job Name --
-JOB="danet"
-#BSUB -J "danet" 
+JOB="danet_mosaic"
+#BSUB -J "danet_mosaic" 
 ### -- ask for number of cores (default: 1) --
 #BSUB -n 12 
-#BSUB -R "span[ptile=1]" 
+#BSUB -R "span[hosts=1]" 
 ### -- Select the resources: 3 gpu in exclusive process mode --
 #BSUB -gpu "num=2:mode=exclusive_process"
 ### -- specify gpu memory
@@ -15,7 +15,7 @@ JOB="danet"
 ### -- set walltime limit: hh:mm --  maximum 24 hours for GPU-queues right now
 #BSUB -W 24:00
 # request 5GB of system-memory
-#BSUB -R "rusage[mem=64GB]"
+#BSUB -R "rusage[mem=10GB]"
 ### -- set the email address --
 # please uncomment the following line and put in your e-mail address,
 # if you want to receive e-mail notifications on a non-default address
