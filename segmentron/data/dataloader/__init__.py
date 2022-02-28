@@ -8,6 +8,7 @@ from .pascal_voc import VOCSegmentation
 from .pascal_aug import VOCAugSegmentation
 from .sbu_shadow import SBUSegmentation
 from .densepass import DenseSegmentation
+from .cityscapes_mosaic import CityMosicSegmentation
 
 
 datasets = {
@@ -16,6 +17,7 @@ datasets = {
     'pascal_aug': VOCAugSegmentation,
     'coco': COCOSegmentation,
     'cityscape': CitySegmentation,
+    'cityscape_mosaic': CityMosicSegmentation,
     'sbu': SBUSegmentation,
     'densepass': DenseSegmentation,
 }

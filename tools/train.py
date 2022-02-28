@@ -133,6 +133,7 @@ class Trainer(object):
             images = images.to(self.device)
             targets = targets.to(self.device)
             
+            # cutmix augumentation
             r = np.random.rand(1)
             cutmix_prob = 0.8 
             beta = 1.0
