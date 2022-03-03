@@ -6,6 +6,8 @@ TRAIN:
     EPOCHS: 240
     BATCH_SIZE: 6 
     CROP_SIZE: 768
+    MODEL_SAVE_DIR: "/work3/s210203/runs/cutmix_2a100/checkpoints/"
+    LOG_SAVE_DIR: "/work3/s210203/runs/cutmix_2a100/logs/"
 TEST:
     BATCH_SIZE: 1 
 #    TEST_MODEL_PATH: trained_models/danet101_segmentron.pth

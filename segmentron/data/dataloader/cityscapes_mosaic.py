@@ -75,7 +75,7 @@ class CityMosicSegmentation(SegmentationDataset):
         mask = Image.open(self.mask_paths[index])
         
         mosaic_p = 0.8
-        p = random.random()
+        p = np.random.rand(1)
         
         # synchrosized transform
         if self.mode == 'train':

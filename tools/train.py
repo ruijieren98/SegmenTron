@@ -23,7 +23,7 @@ from segmentron.solver.optimizer import get_optimizer
 from segmentron.solver.lr_scheduler import get_scheduler
 from segmentron.utils.distributed import *
 from segmentron.utils.score import SegmentationMetric
-from segmentron.utils.filesystem import save_checkpoint
+from segmentron.utils.filesystem import save_checkpoint, save_dp_checkpoint
 from segmentron.utils.options import parse_args
 from segmentron.utils.default_setup import default_setup
 from segmentron.utils.visualize import show_flops_params
@@ -58,6 +58,15 @@ class Trainer(object):
                                             pin_memory=True)
         self.val_loader = data.DataLoader(dataset=val_dataset,
                                           batch_sampler=val_batch_sampler,
+                                          num_workers=cfg.DATASET.WORKERS,
+                                          pin_memory=True)
+
+        # add validation for densepass
+        dp_val_dataset = get_segmentation_dataset('densepass', split='val', mode='testval', transform=input_transform)
+        dp_val_sampler = make_data_sampler(dp_val_dataset, False, args.distributed)
+        dp_val_batch_sampler = make_batch_data_sampler(dp_val_sampler, images_per_batch=cfg.TEST.BATCH_SIZE, drop_last=False)
+        self.dp_val_loader = data.DataLoader(dataset=dp_val_dataset,
+                                          batch_sampler=dp_val_batch_sampler,
                                           num_workers=cfg.DATASET.WORKERS,
                                           pin_memory=True)
 
@@ -115,6 +124,10 @@ class Trainer(object):
         self.metric = SegmentationMetric(train_dataset.num_class, args.distributed)
         self.best_pred = 0.0
 
+        # evaluation metrics for densepass
+        self.dp_metric = SegmentationMetric(train_dataset.num_class, args.distributed)
+        self.dp_best_pred = 0.0
+
 
     def train(self):
         self.save_to_disk = get_rank() == 0
@@ -133,20 +146,20 @@ class Trainer(object):
             images = images.to(self.device)
             targets = targets.to(self.device)
             
-            # # cutmix augumentation
-            # r = np.random.rand(1)
-            # cutmix_prob = 0.8 
-            # beta = 1.0
-            # if  r < cutmix_prob:
-            #     # generate mixed sample
-            #     rand_index = torch.randperm(images.size()[0]).cuda()
+            # cutmix augumentation
+            r = np.random.rand(1)
+            cutmix_prob = 0.5 
+            beta = 1.0
+            if  r < cutmix_prob:
+                # generate mixed sample
+                rand_index = torch.randperm(images.size()[0]).cuda()
                 
-            #     lam = np.random.beta(beta, beta)
+                lam = np.random.beta(beta, beta)
                 
-            #     bbx1, bby1, bbx2, bby2 = self.rand_bbox(images.size(), lam)
+                bbx1, bby1, bbx2, bby2 = self.rand_bbox(images.size(), lam)
                
-            #     images[:, :, bbx1:bbx2, bby1:bby2] = images[rand_index, :, bbx1:bbx2, bby1:bby2]
-            #     targets[:, bbx1:bbx2, bby1:bby2] = targets[rand_index, bbx1:bbx2, bby1:bby2]
+                images[:, :, bbx1:bbx2, bby1:bby2] = images[rand_index, :, bbx1:bbx2, bby1:bby2]
+                targets[:, bbx1:bbx2, bby1:bby2] = targets[rand_index, bbx1:bbx2, bby1:bby2]
 
             outputs = self.model(images)
             loss_dict = self.criterion(outputs, targets)
@@ -176,9 +189,11 @@ class Trainer(object):
 
             if iteration % self.iters_per_epoch == 0 and self.save_to_disk:
                 save_checkpoint(self.model, epoch, self.optimizer, self.lr_scheduler, is_best=False)
+                save_dp_checkpoint(self.model, epoch, self.optimizer, self.lr_scheduler, is_best=False)
             
             if not self.args.skip_val and iteration % val_per_iters == 0:
                 self.validation(epoch)
+                self.dp_validation(epoch)
                 self.model.train()
 
         total_training_time = time.time() - start_time
@@ -194,9 +209,6 @@ class Trainer(object):
         else:
             model = self.model
         torch.cuda.empty_cache()
-        #import gc
-        #del variables
-        #gc.collect()
         torch.cuda.memory_summary()
         model.eval()
         for i, (image, target, filename) in enumerate(self.val_loader):
@@ -223,6 +235,40 @@ class Trainer(object):
             self.best_pred = mIoU
             logging.info('Epoch {} is the best model, best pixAcc: {:.3f}, mIoU: {:.3f}, save the model..'.format(epoch, pixAcc * 100, mIoU * 100))
             save_checkpoint(model, epoch, is_best=True)
+
+    def dp_validation(self, epoch):
+        self.dp_metric.reset()
+        if self.args.distributed:
+            model = self.model.module
+        else:
+            model = self.model
+        torch.cuda.empty_cache()
+        torch.cuda.memory_summary()
+        model.eval()
+        for i, (image, target, filename) in enumerate(self.dp_val_loader):
+            image = image.to(self.device)
+            target = target.to(self.device)
+            with torch.no_grad():
+                if cfg.DATASET.MODE == 'val' or cfg.TEST.CROP_SIZE is None:
+                    output = model(image)[0]
+                else:
+                    size = image.size()[2:]
+                    pad_height = cfg.TEST.CROP_SIZE[0] - size[0]
+                    pad_width = cfg.TEST.CROP_SIZE[1] - size[1]
+                    image = F.pad(image, (0, pad_height, 0, pad_width))
+                    output = model(image)[0]
+                    output = output[..., :size[0], :size[1]]
+
+            self.dp_metric.update(output, target)
+            pixAcc, mIoU = self.dp_metric.get()
+            logging.info("[DP EVAL] Sample: {:d}, pixAcc: {:.3f}, mIoU: {:.3f}".format(i + 1, pixAcc * 100, mIoU * 100))
+        pixAcc, mIoU = self.dp_metric.get()
+        logging.info("[DP EVAL END] Epoch: {:d}, pixAcc: {:.3f}, mIoU: {:.3f}".format(epoch, pixAcc * 100, mIoU * 100))
+        synchronize()
+        if self.dp_best_pred < mIoU and self.save_to_disk:
+            self.dp_best_pred = mIoU
+            logging.info('DP Epoch {} is the best model, best pixAcc: {:.3f}, mIoU: {:.3f}, save the model..'.format(epoch, pixAcc * 100, mIoU * 100))
+            save_dp_checkpoint(model, epoch, is_best=True)
      
     def rand_bbox(self, size, lam):
         W = size[2]
